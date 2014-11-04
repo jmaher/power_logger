@@ -1,16 +1,19 @@
-import urllib2
+import urllib.request
+import subprocess
 import os
 import tempfile
-import ConfigParser
 import shutil
 import json
 import re
-import BeautifulSoup
+from bs4 import BeautifulSoup
+from dzclient import DatazillaRequest, DatazillaResult
+
+try:
+    import ConfigParser
+except:
+    from winpython.py3compat import configparser as ConfigParser
 
 #TODO: JMAHER: we need to get cwd in from a config file
-ENERGIA_DIR = '/home/mozauto/power_logger'
-FIREFOX_PATH = os.path.join(ENERGIA_DIR, 'firefox-installer.exe')
-CONFIG_FILE = ''
 ROOT_URL = 'http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/'
 
 def edit_config_file(config_file, url):
@@ -44,20 +47,20 @@ def check_build(build):
         buildurl = build
     else:
         try:
-            builddir_content = urllib2.urlopen(build).read()
+            builddir_content = urllib.request.urlopen(build).read()
             builddir_soup = BeautifulSoup(builddir_content)
             for build_link in builddir_soup.findAll("a"):
                 match = re_builds.match(build_link.get("href"))
                 if match:
                     buildurl = "%s%s" % (build, build_link.get("href"))
         except:
-            # Which exceptions here? from urllib2, BeautifulSoup
+            # Which exceptions here? from urllib, BeautifulSoup
             print("Error checking build")
             buildurl = None
 
     if buildurl:
         try:
-            builddir_content = urllib2.urlopen(build).read()
+            builddir_content = urllib.request.urlopen(build).read()
         except:
             buildurl = None
 
@@ -69,7 +72,7 @@ def download_build(url, configinfo):
         if os.path.exists(configinfo['firefox_path']):
             os.unlink(configinfo['firefox_path'])
 
-        builddir_content = urllib2.urlopen(url).read()
+        builddir_content = urllib.request.urlopen(url).read()
         with open(configinfo['firefox_path'], 'wb') as f:
             f.write(builddir_content)
 
@@ -109,11 +112,11 @@ def run_benchmark(appinfo, configinfo):
     """Submit jobs for this location for each speed and url.
     """
     #TODO: we need to queue these up somehow- launch one at a time and make this serial
-    p = subprocess.Popen(['python3', 'benchmark.py'], cwd=configinfo['energia_dir'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    ed = configinfo['energia_dir']
+    cmd = ['python3', os.path.join(ed, 'benchmark.py'), '-o', os.path.join(ed, 'report.csv')]
+    p = subprocess.Popen(cmd, cwd=ed, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(p.communicate()[0])
-    post_to_datazilla(appinfo, configinfo)
 
-#TODO: JMAHER: extract this out as data model for wpt is specific
 def post_to_datazilla(appinfo, configinfo):
     """ take test_results (json) and upload them to datazilla """
 
@@ -142,7 +145,6 @@ def post_to_datazilla(appinfo, configinfo):
         platform = "x64"
     
         result.add_testsuite(suite_name)
-        #TODO: JMAHER: hardcoded microperf here, this project should be in a config file and a real name
         request = DatazillaRequest("https",
                                "datazilla.mozilla.org",
                                "power",
@@ -179,14 +181,21 @@ def post_to_datazilla(appinfo, configinfo):
 
 def main():
     configinfo = {}
-    configinfo['energia_dir'] = ENERGIA_DIR
-    configinfo['firefox_path'] = FIREFOX_PATH
-    configinfo['oauth_key'] = ''
-    configinfo['oauth_secret'] = ''
+
+    configini = ConfigParser.RawConfigParser()
+    configini.readfp(open("%s/core/application.ini" % tempdirectory))
+    appinfo['build_name'] = 
+
+    configinfo['energia_dir'] = configini.get("Energia", "dir")
+    configinfo['config_file'] = configini.get("Energia", "config")
+    configinfo['firefox_path'] = configini.get("Energia", "firefox")
+    configinfo['oauth_key'] = configini.get("Energia", "oauth_key")
+    configinfo['oauth_secret'] = configini.get("Energia", "oauth_secret")
 
     buildurl = check_build(ROOT_URL)
     appinfo = download_build(buildurl, configinfo)
     run_benchmark(appinfo, configinfo)
+    post_to_datazilla(appinfo, configinfo)
 
 if __name__ == "__main__":
     main()
