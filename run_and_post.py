@@ -78,7 +78,7 @@ def download_build(url, configinfo):
         return False
 
     if not edit_config_file(CONFIG_FILE, url):
-        print "error editing config file"
+        print("error editing config file")
         return False
 
     # Get information about the build by extracting the installer
@@ -110,7 +110,7 @@ def run_benchmark(appinfo, configinfo):
     """
     #TODO: we need to queue these up somehow- launch one at a time and make this serial
     p = subprocess.Popen(['python3', 'benchmark.py'], cwd=configinfo['energia_dir'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print p.communicate()[0]
+    print(p.communicate()[0])
     post_to_datazilla(appinfo, configinfo)
 
 #TODO: JMAHER: extract this out as data model for wpt is specific
