@@ -189,6 +189,6 @@ def main():
     run_benchmark(appinfo, configinfo)
 
 if __name__ == "__main__":
-    return main()
+    main()
 
 
