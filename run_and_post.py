@@ -89,7 +89,7 @@ def download_build(url, configinfo):
 
     appinfo = {}
     appini = ConfigParser.RawConfigParser()
-    appini.readfp(open("%s/core/application.ini" % tempdirectory))
+    appini.readfp(open("energia.ini"))
     appinfo['build_name'] = appini.get("App", "name")
     appinfo['build_version'] = appini.get("App", "version")
     appinfo['build_id'] = appini.get("App", "buildID")
