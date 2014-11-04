@@ -13,9 +13,6 @@ try:
 except:
     from winpython.py3compat import configparser as ConfigParser
 
-#TODO: JMAHER: we need to get cwd in from a config file
-ROOT_URL = 'http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/'
-
 def edit_config_file(config_file, url):
     try:
         with open(config_file, 'r') as f:
@@ -184,15 +181,15 @@ def main():
 
     configini = ConfigParser.RawConfigParser()
     configini.readfp(open("%s/core/application.ini" % tempdirectory))
-    appinfo['build_name'] = 
 
     configinfo['energia_dir'] = configini.get("Energia", "dir")
     configinfo['config_file'] = configini.get("Energia", "config")
     configinfo['firefox_path'] = configini.get("Energia", "firefox")
     configinfo['oauth_key'] = configini.get("Energia", "oauth_key")
     configinfo['oauth_secret'] = configini.get("Energia", "oauth_secret")
+    configinfo['ftp_root'] = configini.get("Energia", "ftp")
 
-    buildurl = check_build(ROOT_URL)
+    buildurl = check_build(configinfo['ftp_root'])
     appinfo = download_build(buildurl, configinfo)
     run_benchmark(appinfo, configinfo)
     post_to_datazilla(appinfo, configinfo)
