@@ -89,7 +89,7 @@ def download_build(url, configinfo):
 
     appinfo = {}
     appini = ConfigParser.RawConfigParser()
-    appini.readfp(open("energia.ini"))
+    appini.readfp(open("%s/core/application.ini", tempdirectory))
     appinfo['build_name'] = appini.get("App", "name")
     appinfo['build_version'] = appini.get("App", "version")
     appinfo['build_id'] = appini.get("App", "buildID")
@@ -180,7 +180,7 @@ def main():
     configinfo = {}
 
     configini = ConfigParser.RawConfigParser()
-    configini.readfp(open("%s/core/application.ini" % tempdirectory))
+    configini.readfp(open("energia.ini"))
 
     configinfo['energia_dir'] = configini.get("Energia", "dir")
     configinfo['config_file'] = configini.get("Energia", "config")
