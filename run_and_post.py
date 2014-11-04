@@ -64,7 +64,7 @@ def check_build(build):
     return buildurl
 
 def download_build(url, configinfo):
-    "Download a build and extra build information.
+    # Download a build and extra build information.
     try:
         if os.path.exists(configinfo['firefox_path']):
             os.unlink(configinfo['firefox_path'])
