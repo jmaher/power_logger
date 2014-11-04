@@ -21,7 +21,7 @@ except:
 
 class PowerGadget(Wrapper):
     _osx_exec = "PowerLog"
-    _win_exec = "PowerLog.exe"
+    _win_exec = "PowerLog3.0.exe"
     _lin_exec = "power_gadget"
 
     def __init__(self, args):
