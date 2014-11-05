@@ -44,7 +44,8 @@ def check_build(build):
         buildurl = build
     else:
         try:
-            builddir_content = urllib.request.urlopen(build).read()
+            uu = urllib.request.urlopen(build)
+            builddir_content = uu.read()
             builddir_soup = BeautifulSoup(builddir_content)
             for build_link in builddir_soup.findAll("a"):
                 match = re_builds.match(build_link.get("href"))
@@ -57,7 +58,8 @@ def check_build(build):
 
     if buildurl:
         try:
-            builddir_content = urllib.request.urlopen(build).read()
+            uu = urllib.request.urlopen(build)
+            builddir_content = uu.read()
         except:
             buildurl = None
 
@@ -69,7 +71,8 @@ def download_build(url, configinfo):
         if os.path.exists(configinfo['firefox_path']):
             os.unlink(configinfo['firefox_path'])
 
-        builddir_content = urllib.request.urlopen(url).read()
+        uu = urllib.request.urlopen(url)
+        builddir_content = uu.read()
         with open(configinfo['firefox_path'], 'wb') as f:
             f.write(builddir_content)
 
@@ -77,7 +80,7 @@ def download_build(url, configinfo):
         print("Error downloading build")
         return False
 
-    if not edit_config_file(CONFIG_FILE, url):
+    if not edit_config_file(configinfo['config_file'], url):
         print("error editing config file")
         return False
 
@@ -89,7 +92,7 @@ def download_build(url, configinfo):
 
     appinfo = {}
     appini = ConfigParser.RawConfigParser()
-    appini.readfp(open("%s/core/application.ini", tempdirectory))
+    appini.readfp(open(os.path.join(tempdirectory,"core", "application.ini")))
     appinfo['build_name'] = appini.get("App", "name")
     appinfo['build_version'] = appini.get("App", "version")
     appinfo['build_id'] = appini.get("App", "buildID")
@@ -110,14 +113,14 @@ def run_benchmark(appinfo, configinfo):
     """
     #TODO: we need to queue these up somehow- launch one at a time and make this serial
     ed = configinfo['energia_dir']
-    cmd = ['python3', os.path.join(ed, 'benchmark.py'), '-o', os.path.join(ed, 'report.csv')]
+    cmd = ['python', os.path.join(ed, 'benchmark.py'), '-o', os.path.join(ed, 'report.csv')]
     p = subprocess.Popen(cmd, cwd=ed, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(p.communicate()[0])
 
 def post_to_datazilla(appinfo, configinfo):
     """ take test_results (json) and upload them to datazilla """
 
-    with open(os.path.join(configinfo['energia_dir'], '/report.csv'), 'r') as fHandle:
+    with open(os.path.join(configinfo['energia_dir'], 'report.csv'), 'r') as fHandle:
         data = fHandle.readlines()
 
     header = True
@@ -169,7 +172,6 @@ def post_to_datazilla(appinfo, configinfo):
                 continue
 
             result.add_test_results(suite_name, parts[13], [str(parts[14])])
-            print("JMAHER: added data: %s: %s = %s, %s" % (os_version, suite_name, parts[13], [str(parts[14])]))
 
         request.add_datazilla_result(result)
         responses = request.submit()
