@@ -1,4 +1,3 @@
-import urllib.request
 import subprocess
 import os
 import tempfile
@@ -7,6 +6,11 @@ import json
 import re
 from bs4 import BeautifulSoup
 from dzclient import DatazillaRequest, DatazillaResult
+
+try:
+    import urllib2 as urllib
+except:
+    import urllib.request as urllib
 
 try:
     import ConfigParser
@@ -44,7 +48,7 @@ def check_build(build):
         buildurl = build
     else:
         try:
-            uu = urllib.request.urlopen(build)
+            uu = urllib.urlopen(build)
             builddir_content = uu.read()
             builddir_soup = BeautifulSoup(builddir_content)
             for build_link in builddir_soup.findAll("a"):
@@ -58,7 +62,7 @@ def check_build(build):
 
     if buildurl:
         try:
-            uu = urllib.request.urlopen(build)
+            uu = urllib.urlopen(build)
             builddir_content = uu.read()
         except:
             buildurl = None
@@ -71,7 +75,7 @@ def download_build(url, configinfo):
         if os.path.exists(configinfo['firefox_path']):
             os.unlink(configinfo['firefox_path'])
 
-        uu = urllib.request.urlopen(url)
+        uu = urllib.urlopen(url)
         builddir_content = uu.read()
         with open(configinfo['firefox_path'], 'wb') as f:
             f.write(builddir_content)
