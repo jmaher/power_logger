@@ -134,18 +134,23 @@ def post_to_datazilla(appinfo, configinfo):
             header = False
             continue
         parts = line.split(',')
-        if parts[1] not in browsers:
-            browsers.append(parts[1])
+        if len(parts) != 18:
+            continue
 
+        if parts[15] not in browsers:
+            browsers.append(parts[15])
+
+    tests = {'GT Watts': 4, 'IA Watts': 8, 'Processor Watts': 13}
     for browser in browsers:
+      for test in tests:
         result = DatazillaResult()
         suite_name = "PowerGadget"
         machine_name = "tor-win8"
         os_name = "Win"
         browsername = browser
         if browsername == "Internet Explorer":
-            browsrename = "IE"
-        os_version = "8 - %s" % browsername
+            browsername = "IE"
+        os_version = "8-%s (%s)" % (browsername, test)
         platform = "x64"
     
         result.add_testsuite(suite_name)
@@ -169,13 +174,15 @@ def post_to_datazilla(appinfo, configinfo):
             if header:
                 header = False
                 continue
+            if len(parts) != 18:
+                conitinue
             parts = line.split(',')
 
             #Skip data from other browsers
-            if parts[1] != browser:
+            if parts[15] != browser:
                 continue
 
-            result.add_test_results(suite_name, parts[13], [str(parts[14])])
+            result.add_test_results(suite_name, parts[16], [str(parts[tests[test]])])
 
         request.add_datazilla_result(result)
         responses = request.submit()
