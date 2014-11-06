@@ -117,7 +117,7 @@ def run_benchmark(appinfo, configinfo):
     """
     #TODO: we need to queue these up somehow- launch one at a time and make this serial
     ed = configinfo['energia_dir']
-    cmd = ['python', os.path.join(ed, 'benchmark.py'), '-o', os.path.join(ed, 'report.csv')]
+    cmd = ['c:\\Users\\rvitillo\\Downloads\\WinPython-32bit-3.3.5.0\\python-3.3.5\\python.exe', os.path.join(ed, 'benchmark.py'), '-o', os.path.join(ed, 'report.csv')]
     p = subprocess.Popen(cmd, cwd=ed, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(p.communicate()[0])
 
@@ -209,5 +209,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
