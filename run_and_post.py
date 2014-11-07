@@ -189,6 +189,11 @@ def post_to_datazilla(appinfo, configinfo):
         for resp in responses:
             print('server response: %d %s %s' % (resp.status, resp.reason, resp.read()))
 
+def upload_to_s3(configinfo):
+    cmd = ['c:\\Users\\rvitillo\\Downloads\\WinPython-32bit-3.3.5.0\\python-3.3.5\\python.exe', os.path.join(configinfo['energia_dir'], 'upload.py')]
+    p = subprocess.Popen(cmd, cwd=configinfo['energia_dir'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(p.communicate()[0])
+
 def main():
     configinfo = {}
 
@@ -206,6 +211,7 @@ def main():
     appinfo = download_build(buildurl, configinfo)
     run_benchmark(appinfo, configinfo)
     post_to_datazilla(appinfo, configinfo)
+    upload_to_s3(configinfo)
 
 if __name__ == "__main__":
     main()
